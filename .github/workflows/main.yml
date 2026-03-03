@@ -1,0 +1,32 @@
+name: Daily VIT Renewal
+
+on:
+  schedule:
+    - cron: '30 14 * * *'   # 8:00 PM IST
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install selenium webdriver-manager
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Run renewal script
+        env:
+          VIT_USER: ${{ secrets.VIT_USER }}
+          VIT_PASS: ${{ secrets.VIT_PASS }}
+        run: python vit_renew.py
