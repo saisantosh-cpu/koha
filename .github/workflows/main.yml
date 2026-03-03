@@ -29,4 +29,4 @@ jobs:
         env:
           VIT_USER: ${{ secrets.VIT_USER }}
           VIT_PASS: ${{ secrets.VIT_PASS }}
-        run: python vit_renew.py
+        run: python koha/vit_renew.py
