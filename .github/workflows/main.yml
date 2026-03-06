@@ -2,7 +2,7 @@ name: Daily VIT Renewal
 
 on:
   schedule:
-    - cron: '35 13 * * *'   # 6:45 PM IST
+    - cron: '40 6 * * *'   # 12:10 PM IST
   workflow_dispatch:
 
 jobs:
@@ -29,4 +29,5 @@ jobs:
         env:
           VIT_USER: ${{ secrets.VIT_USER }}
           VIT_PASS: ${{ secrets.VIT_PASS }}
+          CHROME_BIN: /usr/bin/google-chrome
         run: python renew_books.py
