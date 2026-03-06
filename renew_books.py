@@ -29,6 +29,8 @@ driver = webdriver.Chrome(
 wait = WebDriverWait(driver, 20)
 
 try:
+    print("Opening VIT Library...")
+
     driver.get("https://webopac.vit.ac.in")
 
     # Wait for login page
@@ -39,7 +41,7 @@ try:
     driver.find_element(By.ID, "password").send_keys(PASSWORD)
     driver.find_element(By.CSS_SELECTOR, "#auth input[type='submit']").click()
 
-    # Wait for successful login
+    # Wait for login success
     wait.until(EC.url_contains("opac-main.pl"))
     print("Login successful!")
 
@@ -60,7 +62,6 @@ try:
     for row in rows:
         columns = row.find_elements(By.TAG_NAME, "td")
 
-        # Skip rows that don't match expected structure
         if len(columns) < 5:
             continue
 
@@ -76,30 +77,44 @@ try:
         print(f"   Due Date: {due_date}")
 
         if due_date == today:
-            print("   Due today → Renewing...")
+            print("   Due today → selecting for renewal")
             renew_needed = True
 
             try:
-                checkbox = row.find_element(By.XPATH, ".//input[@type='checkbox']")
-                checkbox.click()
-            except:
-                print("   Could not select renewal checkbox.")
+                checkbox = row.find_element(By.CSS_SELECTOR, "input[type='checkbox']")
+                driver.execute_script("arguments[0].click();", checkbox)
+                print("   Checkbox selected")
+            except Exception as e:
+                print("   Failed to select checkbox:", e)
 
         book_index += 1
 
-    # Click renew if needed
+    # Renew selected books
     if renew_needed:
         try:
-            renew_button = driver.find_element(
-                By.XPATH, "//button[contains(text(),'Renew selected')]"
-            )
-            renew_button.click()
+            print("\nAttempting renewal...")
 
-            print("\nRenewal submitted successfully!")
-        except:
-            print("\nRenew button not found.")
+            renew_button = wait.until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, "//input[contains(@value,'Renew')] | //button[contains(text(),'Renew')]")
+                )
+            )
+
+            driver.execute_script("arguments[0].click();", renew_button)
+
+            # Wait for confirmation message
+            wait.until(
+                EC.presence_of_element_located((By.CLASS_NAME, "alert"))
+            )
+
+            print("Renewal completed successfully!")
+
+        except Exception as e:
+            print("Renewal failed:", e)
+
     else:
         print("\nNo books need renewal today.")
 
 finally:
+    print("\nClosing browser...")
     driver.quit()
