@@ -2,7 +2,7 @@ name: Daily VIT Renewal
 
 on:
   schedule:
-    - cron: '38 6 * * *'   # 12:10 PM IST
+    - cron: '44 18 * * *'   # 12:14 AM IST
   workflow_dispatch:
 
 jobs:
